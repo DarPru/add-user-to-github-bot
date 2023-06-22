@@ -4,31 +4,26 @@ import requests
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
-from config import TOKEN, GIT_TOKEN
+# from config import TOKEN, GIT_TOKEN
+
+
+'''
+pip install requests
+pip install aiogram
+
+'''
 
 BOT_TOKEN = TOKEN
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
 YOUR_TOKEN = GIT_TOKEN
-OWNER = "DarPru"
+ADMIN = "@" # put admin's tg name
+ORG = "" # put your organisation mane here
 
+# put the list of users allowed to be added to repo
 USERS = {
-    'dar_pru': 'DarPru',
-    'Kirusha_molodec': 'Kirusha-Molodec',
-    'senchukk': 'senchukk',
-    'maxabuts': 'maxarez',
-    'nnastian': 'nastiiaan',
-    'LezhatPleace': 'CyberAmmo',
-    'TaranYevgen': 'TaranYevgen',
-    'antimenchik': 'Antimen-Web',
-    'tselikovaa': 'tselikova007',
-    'callmeyungpluxury': 'yungpluxury',
-    'grankin_n': 'Nebarik07',
-    'sashenka_kh': 'Ripka7',
-    'Vikaseo123': 'vikaseo123',
-    'Morgenn': 'angry-red-panda'
-
+    'tg_name': 'github_name'
 
 }
 @dp.message_handler(lambda message: '@allow_my_id_to_github_bot' in message.text)
@@ -37,15 +32,9 @@ async def process_start_command(message: types.Message):
     if name in USERS:
         USERNAME = USERS[name]
         URLS = list(filter(None, re.split('\n|,| |и', message.text[26:])))
+        print(URLS)
         for url in URLS:
             REPO = url
-            ORG = "1sites"
-            portals = ["datacolor.com.ua", "artistwizard.co.uk", "stayathome.co.in", "fun88cado.com", "drbet.org.uk",
-                       "1vin.com.ua", "1vin.co.ua", "tuev-nord.com.ua", "1vin.org.ua", "vupysknoj.com.ua",
-                       "goto1xbet.website", "headlines.com.ua", "1vin.net.ua", "1vin.kiev.ua", "tiger-casino.net"]
-            for i in portals:
-                if REPO == i:
-                    ORG = "1portals"
             URL = f'https://api.github.com/repos/{ORG}/{REPO}/collaborators/{USERNAME}'
             headers = {
                 "Accept": "application/vnd.github+json",
@@ -57,18 +46,18 @@ async def process_start_command(message: types.Message):
             }
             r = requests.put(url=URL, data=json.dumps(data), headers=headers)
             if r.status_code == 201 or r.status_code == 204:
-                await message.reply(f'Успех! Пользователь {USERNAME} был успешно добавлен в репозиторий {REPO}')
+                await message.reply(f'Success! User {USERNAME} was added to repo {REPO}')
             else:
-                await message.reply(f'Что-то пошло не так! @darpru нужна помощь!')
+                await message.reply(f'Something went wrong! {ADMIN} need your help!')
 
     else:
-        await message.reply(f"Тебя нет в моей базе, @dar_pru это нужно поправить")
+        await message.reply(f"You are not in my base, {ADMIN} need your help!")
 
 
 
 @dp.message_handler()
 async def defaultHander(message : types.Message):
-    await message.answer(f"Извините, это не команда")
+    await message.answer(f"Sorry, it's not a command")
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
